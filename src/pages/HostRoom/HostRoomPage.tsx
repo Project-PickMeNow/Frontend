@@ -20,6 +20,7 @@ import { LadderResult } from '../../features/game/components/results/LadderResul
 import { ResultModal } from '../../features/game/components/results/ResultModal';
 import { Loading, Button } from '../../shared/ui';
 import { homePath } from '../../shared/lib/embed';
+import { buildJoinUrl } from '../../shared/lib/joinUrl';
 
 type Phase = 'select' | 'qr' | 'play';
 
@@ -358,7 +359,7 @@ export function HostRoomPage() {
       <GameLobby
         roomId={roomId}
         title={title}
-        joinUrl={`${window.location.origin}/r/${roomId}`}
+        joinUrl={buildJoinUrl(roomId)}
         participants={participants}
         readyPlayers={readyPlayers}
         isHost
