@@ -144,3 +144,7 @@ vite.config.ts.timestamp-*
 
 # OMC (오케스트레이션 내부 상태 - 커밋 안 함)
 .omc/
+
+# 앱인토스(Apps in Toss) 빌드 산출물 - 커밋 안 함
+.granite
+*.ait
