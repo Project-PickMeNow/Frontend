@@ -6,7 +6,7 @@ import { getApiErrorCode } from '../../shared/lib/apiError';
 import { useRoomStore } from '../../features/room/store/roomStore';
 import { RoomClosedModal } from '../../features/room/components/RoomClosedModal';
 import { CreateRoomModal } from '../../features/room/components/CreateRoomModal';
-import { Screen, Button } from '../../shared/ui';
+import { Screen, Button, BannerAd } from '../../shared/ui';
 import { SoundToggle } from '../../shared/ui/SoundToggle';
 import {
   RouletteIcon,
@@ -138,6 +138,10 @@ export function HomePage() {
             )}
           </p>
         </div>
+
+        {/* 배너 광고 — 홈은 조작이 없는 대기 화면이라 광고가 흐름을 끊지 않는다.
+            아래 spacer 와 자체 여백으로 CTA 버튼과 충분히 떨어뜨린다(오클릭 유도 방지). */}
+        <BannerAd />
 
         <div className="spacer" />
 

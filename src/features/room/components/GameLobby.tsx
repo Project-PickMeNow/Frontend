@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import type { GameType } from '../../../shared/types/api';
-import { Screen, Button, TopBar, GameIcon, CrownIcon, CopyIcon } from '../../../shared/ui';
+import { Screen, Button, TopBar, GameIcon, CrownIcon, CopyIcon, BannerAd } from '../../../shared/ui';
 import { mascotFor } from '../../../shared/lib/mascot';
 import { copyText, copyImageDataUrl } from '../../../shared/lib/clipboard';
 import { useRoomStore } from '../store/roomStore';
@@ -276,6 +276,14 @@ export function GameLobby({
         ))}
 
       </div>
+
+      {/* 배너 광고 — 로비는 사람이 모일 때까지 머무는 시간이 길어 노출이 가장 잘 나오는 화면이다.
+          참가자 목록과 안내 문구 사이에 두는 이유: 정책상 광고는 버튼과 인접하면 안 되는데
+          (의도치 않은 클릭을 유도하는 구조로 본다) 이 자리는 아래를 안내 문구(텍스트)가 받쳐 줘서
+          '방 삭제하기' 버튼과 확실히 떨어진다.
+          카운트다운 중에는 붙이지 않는다 — 게임으로 넘어가기 직전 몇 초를 광고로 끊지 않는다.
+          (언마운트되면서 destroy() 가 불려 DOM 에서도 깨끗이 걷힌다.) */}
+      {!counting && <BannerAd />}
 
       {counting ? (
         <div className="lobby-countdown" role="status" aria-live="assertive">
