@@ -5,6 +5,7 @@ export { Loading } from './Loading';
 export { ErrorView, GoHomeButton } from './ErrorView';
 export { DisconnectBanner } from './DisconnectBanner';
 export { RoomToast } from './RoomToast';
+export { BannerAd } from './BannerAd';
 export {
   GameIcon,
   RouletteIcon,
