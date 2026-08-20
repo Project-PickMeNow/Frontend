@@ -143,20 +143,33 @@ export function GameLobby({
     <Screen
       footer={
         isHost ? (
-          <div className="grid-2">
-            <Button variant="secondary" onClick={() => setQrOpen(true)} disabled={counting}>
-              QR 보기
-            </Button>
-            {pending.length > 0 ? (
-              // 일부 참가자가 아직 로비로 안 돌아왔음 — 기다리지 않고 '그래도 시작'할 수 있다.
-              // 서버가 그들을 이번 게임에서 빼고 '접속이 늦어 참여 못함' 안내(game:missed)를 보낸다.
-              <Button onClick={() => onStart?.(true)} disabled={!gameType || counting}>
-                그래도 시작 ({pending.length}명 대기)
+          <div className="lobby-actions">
+            {/* 'QR 보기'는 보조 동작이라 좁게, '게임 시작'은 주 동작이라 넓게 잡는다.
+                (미복귀 참가자가 있으면 '그래도 시작 (N명 대기)' 로 길어지기도 한다.) */}
+            <div className="lobby-actions-row">
+              <Button variant="secondary" onClick={() => setQrOpen(true)} disabled={counting}>
+                QR 보기
               </Button>
-            ) : (
-              <Button onClick={() => onStart?.()} disabled={!gameType || counting}>
-                게임 시작 ▶
-              </Button>
+              {pending.length > 0 ? (
+                // 일부 참가자가 아직 로비로 안 돌아왔음 — 기다리지 않고 '그래도 시작'할 수 있다.
+                // 서버가 그들을 이번 게임에서 빼고 '접속이 늦어 참여 못함' 안내(game:missed)를 보낸다.
+                <Button onClick={() => onStart?.(true)} disabled={!gameType || counting}>
+                  그래도 시작 ({pending.length}명 대기)
+                </Button>
+              ) : (
+                <Button onClick={() => onStart?.()} disabled={!gameType || counting}>
+                  게임 시작 ▶
+                </Button>
+              )}
+            </div>
+            {onDeleteRoom && (
+              <button
+                type="button"
+                className="link-danger"
+                onClick={() => setConfirmLeave(true)}
+              >
+                방 삭제하기
+              </button>
             )}
           </div>
         ) : (
@@ -267,8 +280,8 @@ export function GameLobby({
 
       {/* 배너 광고 — 로비는 사람이 모일 때까지 머무는 시간이 길어 노출이 가장 잘 나오는 화면이다.
           참가자 목록과 안내 문구 사이에 두는 이유: 정책상 광고는 버튼과 인접하면 안 되는데
-          (의도치 않은 클릭을 유도하는 구조로 본다) 이 자리는 아래를 안내 문구(텍스트)가 받쳐 줘서
-          '방 삭제하기' 버튼과 확실히 떨어진다.
+          (의도치 않은 클릭을 유도하는 구조로 본다) 이 자리는 위아래가 목록과 안내 문구(텍스트)라
+          조작 요소와 붙지 않는다. 버튼은 전부 하단 고정 푸터에 있어 본문과 분리돼 있다.
           카운트다운 중에는 붙이지 않는다 — 게임으로 넘어가기 직전 몇 초를 광고로 끊지 않는다.
           (언마운트되면서 destroy() 가 불려 DOM 에서도 깨끗이 걷힌다.) */}
       {!counting && <BannerAd />}
@@ -292,17 +305,6 @@ export function GameLobby({
                   : '사람들이 다 모이면 게임 시작을 눌러요'
             : '호스트가 곧 게임을 시작해요…'}
         </p>
-      )}
-
-      {isHost && onDeleteRoom && (
-        <button
-          type="button"
-          className="link-danger"
-          style={{ marginTop: 20, alignSelf: 'center' }}
-          onClick={() => setConfirmLeave(true)}
-        >
-          방 삭제하기
-        </button>
       )}
 
       {qrOpen && isHost && (
