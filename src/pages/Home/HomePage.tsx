@@ -99,11 +99,11 @@ export function HomePage() {
         {/* 결정 스피너 히어로 — 가운데 룰렛을 중심으로 게임 아이콘이 떠 있는 브랜드 무드 */}
         <div className="home-hero" aria-hidden="true">
           <span className="home-hero-glow" />
-          <RouletteIcon className="home-spinner" size={150} />
-          <BalloonIcon className="home-accent acc-tl" size={40} />
-          <LadderIcon className="home-accent acc-tr" size={34} />
-          <DrawIcon className="home-accent acc-bl" size={40} />
-          <OrderIcon className="home-accent acc-br" size={38} />
+          <RouletteIcon className="home-spinner" size={124} />
+          <BalloonIcon className="home-accent acc-tl" size={34} />
+          <LadderIcon className="home-accent acc-tr" size={30} />
+          <DrawIcon className="home-accent acc-bl" size={34} />
+          <OrderIcon className="home-accent acc-br" size={32} />
           <span className="home-verb">돌리고 · 뽑고 · 터뜨려서 정해요</span>
         </div>
 
