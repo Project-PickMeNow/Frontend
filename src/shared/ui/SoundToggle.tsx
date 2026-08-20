@@ -24,13 +24,17 @@ export function SoundToggle({ floating = true }: { floating?: boolean } = {}) {
         ...(floating
           ? {
               position: 'absolute',
-              top: 'max(12px, env(safe-area-inset-top))',
-              right: '12px',
+              // TopBar 제목과 같은 줄에 오도록 맞춘다.
+              // 화면 상단 패딩(--sp-5=20) + .topbar margin-top(--sp-1=4) = 24 에서 시작하는
+              // 32px 높이 줄의 한가운데(40) 에 33px 버튼의 중심을 둔다 → 40 - 16.5 ≈ 24.
+              top: '24px',
+              // 본문과 같은 좌우 여백(--inset)에 맞춰 제목의 반대편 끝에 선다.
+              right: 'var(--inset)',
               zIndex: 50,
             }
           : null),
-        width: 40,
-        height: 40,
+        width: 33,
+        height: 33,
         flex: 'none',
         display: 'inline-flex',
         alignItems: 'center',
@@ -45,7 +49,7 @@ export function SoundToggle({ floating = true }: { floating?: boolean } = {}) {
         opacity: 0.9,
       }}
     >
-      {muted ? <SoundOffIcon size={20} /> : <SoundOnIcon size={20} />}
+      {muted ? <SoundOffIcon size={17} /> : <SoundOnIcon size={17} />}
     </button>
   );
 }
