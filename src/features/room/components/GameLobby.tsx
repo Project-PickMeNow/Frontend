@@ -110,18 +110,6 @@ export function GameLobby({
     }
   };
 
-  // QR 이미지 다운로드 — data URL(qr)을 그대로 파일로 저장한다.
-  const downloadQr = () => {
-    if (!qr) return;
-    const a = document.createElement('a');
-    a.href = qr;
-    a.download = `pickmenow-${roomId}.png`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    useRoomStore.getState().pushNotice('QR 이미지를 저장했어요');
-  };
-
   // QR 복사 — QR '이미지'를 클립보드에 넣는다(모든 환경에서 이미지 우선).
   // copyImageDataUrl 은 data URL 을 fetch 없이 Blob 으로 디코드해 /embed 의 CSP 에도 막히지 않는다.
   // 이미지 클립보드를 지원 안 하거나 권한이 거부된 환경(예: Zoom 웹뷰)에서만 참여 링크로 폴백한다.
@@ -354,14 +342,14 @@ export function GameLobby({
             {joinUrl && <p className="lobby-qr-url">{joinUrl}</p>}
 
             <div className="modal-actions">
-              <div className="grid-2" style={{ marginBottom: 8 }}>
-                <Button variant="secondary" onClick={copyQr} disabled={!qr}>
-                  QR 복사
-                </Button>
-                <Button variant="secondary" onClick={downloadQr} disabled={!qr}>
-                  QR 다운로드
-                </Button>
-              </div>
+              <Button
+                variant="secondary"
+                onClick={copyQr}
+                disabled={!qr}
+                style={{ marginBottom: 8 }}
+              >
+                QR 복사
+              </Button>
               <Button block onClick={() => setQrOpen(false)}>
                 닫기
               </Button>
