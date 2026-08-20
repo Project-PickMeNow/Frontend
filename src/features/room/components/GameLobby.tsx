@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
+import { MAX_ROOM_MEMBERS } from '../../../shared/lib/roomCapacity';
 import type { GameType } from '../../../shared/types/api';
 import { Screen, Button, TopBar, GameIcon, CrownIcon, CopyIcon, BannerAd } from '../../../shared/ui';
 import { mascotFor } from '../../../shared/lib/mascot';
@@ -110,6 +111,17 @@ export function GameLobby({
     }
   };
 
+  // 참여 링크 복사 — QR 을 못 찍는 상대에게 주소를 그대로 보내줄 때 쓴다.
+  const copyJoinUrl = async () => {
+    if (!joinUrl) return;
+    const pushNotice = useRoomStore.getState().pushNotice;
+    if (await copyText(joinUrl)) {
+      pushNotice('참여 링크를 복사했어요');
+    } else {
+      pushNotice('복사에 실패했어요');
+    }
+  };
+
   // QR 복사 — QR '이미지'를 클립보드에 넣는다(모든 환경에서 이미지 우선).
   // copyImageDataUrl 은 data URL 을 fetch 없이 Blob 으로 디코드해 /embed 의 CSP 에도 막히지 않는다.
   // 이미지 클립보드를 지원 안 하거나 권한이 거부된 환경(예: Zoom 웹뷰)에서만 참여 링크로 폴백한다.
@@ -139,14 +151,26 @@ export function GameLobby({
   // 그 3초 동안 로스터가 전원 'WAITING' 으로 깜빡이지 않게, 카운트다운 중엔 대기자가 없는 것으로 본다.
   const pending = counting ? [] : participants.filter((p) => !ready.includes(p));
 
+  // 로비 하단 안내 문구. 빈 문자열이면 아무것도 그리지 않는다.
+  const foot = isHost
+    ? pending.length > 0
+      ? `${pending.length}명이 방으로 돌아오는 중이에요. 모두 돌아오면 새 게임을 시작할 수 있어요.`
+      : !gameType
+        ? '먼저 게임을 고르고, 준비되면 게임 시작을 눌러요'
+        : participants.length === 0
+          ? 'QR 보기로 친구를 초대하고, 다 모이면 게임을 시작하세요'
+          : ''
+    : '호스트가 곧 게임을 시작해요…';
+
+  // 하단 액션: 'QR 보기'는 보조 동작이라 좁게, '게임 시작'은 주 동작이라 넓게 잡는다
+  // (미복귀 참가자가 있으면 '그래도 시작 (N명 대기)' 로 길어지기도 한다).
+  // 방 삭제 버튼은 두지 않는다 — 상단 뒤로가기 화살표가 확인 모달을 띄우고,
+  // 거기서 호스트면 '방 삭제하고 나가기', 참가자면 '나가기'로 갈린다.
   return (
     <Screen
       footer={
         isHost ? (
-          <div className="lobby-actions">
-            {/* 'QR 보기'는 보조 동작이라 좁게, '게임 시작'은 주 동작이라 넓게 잡는다.
-                (미복귀 참가자가 있으면 '그래도 시작 (N명 대기)' 로 길어지기도 한다.) */}
-            <div className="lobby-actions-row">
+          <div className="lobby-actions-row">
               <Button variant="secondary" onClick={() => setQrOpen(true)} disabled={counting}>
                 QR 보기
               </Button>
@@ -160,16 +184,6 @@ export function GameLobby({
                 <Button onClick={() => onStart?.()} disabled={!gameType || counting}>
                   게임 시작 ▶
                 </Button>
-              )}
-            </div>
-            {onDeleteRoom && (
-              <button
-                type="button"
-                className="link-danger"
-                onClick={() => setConfirmLeave(true)}
-              >
-                방 삭제하기
-              </button>
             )}
           </div>
         ) : (
@@ -199,7 +213,7 @@ export function GameLobby({
         </span>
         <span className="lobby-live">
           <i className="lobby-dot" aria-hidden="true" />
-          {live} / {maxParticipants}명 접속
+          {live} / {Math.min(maxParticipants, MAX_ROOM_MEMBERS)}명 접속
         </span>
       </div>
 
@@ -294,17 +308,9 @@ export function GameLobby({
           <span className="lobby-countdown-text">초 뒤 게임으로 들어가요</span>
         </div>
       ) : (
-        <p className="center muted lobby-foot">
-          {isHost
-            ? pending.length > 0
-              ? `${pending.length}명이 방으로 돌아오는 중이에요. 모두 돌아오면 새 게임을 시작할 수 있어요.`
-              : !gameType
-                ? '먼저 게임을 고르고, 준비되면 게임 시작을 눌러요'
-                : participants.length === 0
-                  ? 'QR 보기로 친구를 초대하고, 다 모이면 게임을 시작하세요'
-                  : '사람들이 다 모이면 게임 시작을 눌러요'
-            : '호스트가 곧 게임을 시작해요…'}
-        </p>
+        // 참가자가 이미 모여 있으면 안내를 띄우지 않는다 — 빈 문자열이면 <p> 자체를 그리지 않아
+        // 빈 줄이 자리만 차지하는 일이 없게 한다.
+        foot && <p className="center muted lobby-foot">{foot}</p>
       )}
 
       {qrOpen && isHost && (
@@ -341,7 +347,20 @@ export function GameLobby({
                 <CopyIcon size={15} />
               </button>
             </div>
-            {joinUrl && <p className="lobby-qr-url">{joinUrl}</p>}
+            {joinUrl && (
+              <div className="lobby-qr-link">
+                <p className="lobby-qr-url">{joinUrl}</p>
+                <button
+                  type="button"
+                  className="lobby-copy"
+                  onClick={copyJoinUrl}
+                  aria-label="참여 링크 복사"
+                  title="참여 링크 복사"
+                >
+                  <CopyIcon size={15} />
+                </button>
+              </div>
+            )}
 
             <div className="modal-actions">
               <Button
@@ -385,7 +404,17 @@ export function GameLobby({
                   취소
                 </Button>
                 <Button onClick={confirmLeaveAction}>
-                  {isHost ? '방 삭제하고 나가기' : '나가기'}
+                  {isHost ? (
+                    // .btn 이 flex 라 <br> 을 직접 넣으면 플렉스 아이템이 돼 줄이 안 바뀐다.
+                    // span 으로 감싸 그 안에서 줄을 바꾼다.
+                    <span style={{ lineHeight: 1.25, textAlign: 'center' }}>
+                      방 삭제하고
+                      <br />
+                      나가기
+                    </span>
+                  ) : (
+                    '나가기'
+                  )}
                 </Button>
               </div>
             </div>
