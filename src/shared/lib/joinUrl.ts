@@ -20,7 +20,9 @@ const PUBLIC_WEB_URL = import.meta.env.VITE_PUBLIC_WEB_URL as string | undefined
 
 /** 참가자 입장 경로(`/r/:roomId`)의 절대 주소. QR·링크 공유에 그대로 쓴다. */
 export function buildJoinUrl(roomId: string): string {
-  const base = (PUBLIC_WEB_URL ?? window.location.origin).replace(/\/$/, '');
+  // ?? 는 빈 문자열을 통과시킨다 — .env 에 `VITE_PUBLIC_WEB_URL=` 처럼 키만 두면
+  // base 가 '' 가 돼 링크가 '/r/ABC' 같은 상대경로로 나온다. 빈 값도 폴백시킨다.
+  const base = (PUBLIC_WEB_URL?.trim() || window.location.origin).replace(/\/$/, '');
   return `${base}/r/${roomId}`;
 }
 
