@@ -2230,11 +2230,18 @@ input {
   letter-spacing: 0.06em;
   margin-left: 6px;
 }
+/* 참가 링크 표시 — 토스앱에선 추적 파라미터가 붙은 긴 공유 링크가 들어와서
+   그냥 두면 서너 줄로 늘어난다. 두 줄까지만 보이고 나머지는 말줄임 처리한다. */
 .lobby-qr-url {
   margin: 6px 0 0;
   font-size: 12px;
   color: var(--muted);
   word-break: break-all;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 
 @keyframes lobby-pop {
