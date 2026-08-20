@@ -150,8 +150,6 @@ export function HomePage() {
             방 만들기 (호스트)
           </Button>
 
-          <p className="center muted" style={{ fontSize: 14 }}>또는</p>
-
           <div className="home-join">
             <input
               className="input"
