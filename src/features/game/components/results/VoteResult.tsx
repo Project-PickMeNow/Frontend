@@ -41,7 +41,9 @@ export function VoteResult({ result }: { result: VoteResultData }) {
         <p className="section-label" style={{ color: 'var(--accent)' }}>
           {tie ? `공동 1위 (${winners.length})` : '당첨!'}
         </p>
-        <p className="result-winner" style={{ fontSize: tie ? 24 : 30, display: 'inline-flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+        {/* inline-flex 로 두면 부모의 텍스트 baseline 에 얹혀 아래쪽에만 여백이 더 생긴다
+            (카드 안에서 내용이 위로 쏠려 보이던 원인). block 레벨 flex 로 바꿔 균형을 맞춘다. */}
+        <p className="result-winner" style={{ fontSize: tie ? 24 : 30, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
           {winners.map((w) => w.label).join(', ')} <ConfettiIcon size={26} />
         </p>
       </div>

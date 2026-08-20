@@ -991,6 +991,14 @@ input {
   text-align: center;
   background: var(--accent-soft);
 }
+/* 첫/마지막 줄의 바깥 마진을 없앤다. <p> 기본 마진이 살아 있으면 위아래 여백이
+   서로 달라져 내용이 카드 안에서 한쪽으로 쏠려 보인다(패딩만으로 대칭을 잡는다). */
+.result-card > :first-child {
+  margin-top: 0;
+}
+.result-card > :last-child {
+  margin-bottom: 0;
+}
 .result-winner {
   font-size: 40px;
   font-weight: 800;

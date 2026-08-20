@@ -25,7 +25,8 @@ export function DrawResult({ result }: { result: GameResult }) {
           {w}
         </p>
       ))}
-      <p className="muted" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+      {/* VoteResult 와 같은 이유로 block 레벨 flex — inline-flex 는 baseline 에 얹혀 아래 여백이 더 생긴다. */}
+      <p className="muted" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
         오늘은 {winnerLabels.join(', ')}! <ConfettiIcon size={20} />
       </p>
     </div>
