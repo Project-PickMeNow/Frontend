@@ -544,9 +544,11 @@ input {
   margin-top: var(--sp-2);
 }
 .spacer {
-  /* 남는 세로를 다 먹지 않게 상한을 둔다 — CTA 가 화면 바닥까지 내려가면 손이 멀어진다. */
+  /* 남는 세로를 다 먹지 않게 상한을 둔다 — CTA 가 화면 바닥까지 내려가면 손이 멀어진다.
+     광고가 붙는 화면에서는 광고 자체의 아래 여백(32px, 정책상 줄일 수 없음)에 이 값이
+     그대로 더해지므로 작게 잡는다. */
   flex: 1 1 auto;
-  max-height: var(--sp-8);
+  max-height: var(--sp-2);
 }
 
 /* -------------------------------------------------------------------------
@@ -583,14 +585,14 @@ input {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 165px;
-  height: 165px;
+  width: 112px;
+  height: 112px;
   transform: translate(-50%, -58%);
   border-radius: var(--r-pill);
   background: radial-gradient(
     circle,
-    rgba(255, 255, 255, 0.92) 0%,
-    rgba(255, 255, 255, 0) 70%
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 68%
   );
 }
 /* 라이트 고정: 아래 조건은 절대 매치되지 않아 비활성. */
@@ -717,8 +719,8 @@ input {
     margin-bottom: 24px;
   }
   .home-hero-glow {
-    width: 130px;
-    height: 130px;
+    width: 96px;
+    height: 96px;
   }
   .home-accent.acc-bl {
     bottom: 50px;
