@@ -203,17 +203,25 @@ export function Ladder({
 
   // ── 호스트 편집 화면 ──
   const count = tops.length;
+  // 빈 칸이 하나라도 있으면 시작할 수 없다 — 이름·당첨 항목이 비면 결과를 읽을 수 없다.
+  const emptyCount =
+    tops.filter((v) => !v.trim()).length + bottoms.filter((v) => !v.trim()).length;
+  const canBuild = emptyCount === 0;
   return (
     <Screen
       footer={
         <div className="grid-2">
           <Button variant="secondary" onClick={onLeave}>돌아가기</Button>
-          <Button onClick={() => onBuild(tops, bottoms)}>사다리 시작</Button>
+          <Button onClick={() => onBuild(tops, bottoms)} disabled={!canBuild}>사다리 시작</Button>
         </div>
       }
     >
       <TopBar title="사다리타기" onBack={isHost ? onLeave : undefined} />
-      <p className="subtitle" style={{ marginTop: -8 }}>이름과 당첨 항목을 적어주세요.</p>
+      <p className="subtitle" style={{ marginTop: -8 }}>
+        {canBuild
+          ? '이름과 당첨 항목을 적어주세요.'
+          : `아직 ${emptyCount}칸이 비어 있어요 — 다 채우면 시작할 수 있어요.`}
+      </p>
 
       <div className="lg-count">
         <span className="muted">칸 개수</span>

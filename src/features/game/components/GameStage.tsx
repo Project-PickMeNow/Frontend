@@ -10,6 +10,9 @@ import { ItemEditor } from '../../room/components/ItemEditor';
  * 참가자는 버튼 없이 관전하다 result 가 오면 같은 애니메이션을 본다.
  * (디자인은 추후 수정 예정 — 기본 버전)
  */
+/** 항목 상한 — ItemEditor 의 MAX_ITEMS 와 같은 값이어야 한다. */
+const MAX_ITEMS = 12;
+
 const META: Record<
   Exclude<GameType, 'roulette' | 'vote'>,
   { title: string; hint: string; action: string; busy: string }
@@ -111,6 +114,7 @@ export function GameStage({
   onEditItem,
   onDraftChange,
   orderDraft,
+  participants,
 }: {
   roomId: string;
   gameType: Exclude<GameType, 'roulette' | 'vote'>;
@@ -129,9 +133,13 @@ export function GameStage({
   onDraftChange?: (text: string) => void;
   /** 참가자 전용(순서 정하기) — 호스트가 지금 입력 중인 항목(‘입력 중’ 칩으로 표시). */
   orderDraft?: string;
+  /** 호스트 전용(순서 정하기) — 방에 들어와 있는 참가자 닉네임. '참가자 추가하기'에 쓴다. */
+  participants?: string[];
 }) {
   const meta = META[gameType];
   const [active, setActive] = useState(false);
+  // '참가자 추가하기' 확인 모달 — 여러 명이 한 번에 들어가므로 실수로 누르지 않게 한 번 묻는다.
+  const [confirmAddPlayers, setConfirmAddPlayers] = useState(false);
   const finishedRef = useRef(false);
 
   // 결과 도착 → 애니메이션(reel-spin 등) 재생 후 결과 화면으로 전환.
@@ -143,6 +151,22 @@ export function GameStage({
     const t = setTimeout(() => onFinish?.(), 2500);
     return () => clearTimeout(t);
   }, [result, onFinish]);
+
+  // 아직 항목으로 안 들어간 참가자만 추린다(같은 이름 중복 추가 방지). 방장은 넣지 않는다.
+  // 상한(MAX_ITEMS)을 넘는 만큼은 자르고, 넘친 인원은 버튼 아래에 알린다.
+  const existing = new Set(items.map((it) => it.label.trim().toLowerCase()));
+  const missingPlayers = (participants ?? []).filter(
+    (nick) => nick.trim() && !existing.has(nick.trim().toLowerCase()),
+  );
+  const room = Math.max(0, MAX_ITEMS - items.length);
+  const addablePlayers = missingPlayers.slice(0, room);
+  // 참가자가 아직 없어도 버튼은 보여준다(비활성) — 안 보이면 기능이 있는 줄도 모른다.
+  const showAddPlayers = gameType === 'order' && isHost && !!onAddItem && !active;
+
+  const addPlayers = () => {
+    addablePlayers.forEach((nick) => onAddItem?.(nick.trim()));
+    setConfirmAddPlayers(false);
+  };
 
   const start = () => {
     if (active || items.length < 2) return;
@@ -174,6 +198,30 @@ export function GameStage({
           // 순서 정하기는 등록된 항목을 아래 칩에서 직접 수정/삭제하므로 편집기는 '추가'만 담당한다.
           addOnly={gameType === 'order'}
         />
+      )}
+
+      {/* 순서 정하기 — 방에 있는 참가자 이름을 한 번에 항목으로 넣는다.
+          이름을 하나씩 타이핑하는 게 이 게임에서 제일 번거로운 일이라 지름길을 둔다. */}
+      {showAddPlayers && (
+        <div className="stage-addplayers">
+          <Button
+            variant="secondary"
+            onClick={() => setConfirmAddPlayers(true)}
+            disabled={addablePlayers.length === 0}
+          >
+            참가자 추가하기
+            {addablePlayers.length > 0 && ` (${addablePlayers.length}명)`}
+          </Button>
+          {(participants ?? []).length === 0 ? (
+            <p className="muted stage-addplayers-hint">아직 방에 들어온 참가자가 없어요</p>
+          ) : missingPlayers.length === 0 ? (
+            <p className="muted stage-addplayers-hint">참가자가 모두 항목에 들어가 있어요</p>
+          ) : addablePlayers.length < missingPlayers.length ? (
+            <p className="muted stage-addplayers-hint">
+              항목은 최대 {MAX_ITEMS}개예요 — {missingPlayers.length - addablePlayers.length}명은 들어가지 않아요
+            </p>
+          ) : null}
+        </div>
       )}
 
       <div className={`stage-visual${active ? ' active' : ''}`}>
@@ -246,6 +294,42 @@ export function GameStage({
         <p className="center muted" style={{ fontSize: 13 }}>
           {active ? meta.busy : '호스트가 시작하면 결과가 떠요'}
         </p>
+      )}
+      {confirmAddPlayers && (
+        <div
+          className="modal-backdrop"
+          onClick={() => setConfirmAddPlayers(false)}
+          role="presentation"
+        >
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            {/* 한글은 기본 줄바꿈이 어절 중간을 끊는다 — keep-all 로 단어 단위로만 끊고,
+                의미가 나뉘는 자리는 <br> 로 직접 끊어 읽기 좋게 만든다. */}
+            <p
+              className="title center"
+              style={{ marginTop: 0, fontSize: 20, lineHeight: 1.35, wordBreak: 'keep-all' }}
+            >
+              참가자들을
+              <br />
+              추가하시겠습니까?
+            </p>
+            <p
+              className="subtitle center"
+              style={{ fontSize: 14, lineHeight: 1.55, wordBreak: 'keep-all' }}
+            >
+              방에 있는 참가자 <b>{addablePlayers.length}명</b>의 이름이
+              <br />
+              항목으로 추가돼요.
+            </p>
+            <div className="modal-actions">
+              <div className="grid-2">
+                <Button variant="secondary" onClick={() => setConfirmAddPlayers(false)}>
+                  아니오
+                </Button>
+                <Button onClick={addPlayers}>네</Button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </Screen>
   );
