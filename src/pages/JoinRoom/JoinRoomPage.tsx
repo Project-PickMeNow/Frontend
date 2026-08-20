@@ -7,6 +7,8 @@ import { useRoomStore } from '../../features/room/store/roomStore';
 import type { ErrorCode } from '../../shared/types/api';
 import { Screen, Button, Loading, ErrorView, GoHomeButton, LockIcon } from '../../shared/ui';
 import { homePath } from '../../shared/lib/embed';
+import { MAX_PARTICIPANTS } from '../../shared/lib/roomCapacity';
+import { RoomFullModal } from '../../features/room/components/RoomFullModal';
 
 const PIN_MAX = 6;
 
@@ -17,7 +19,6 @@ const PIN_MAX = 6;
 const JOIN_ERROR_MESSAGE: Partial<Record<ErrorCode, string>> = {
   NICKNAME_TAKEN: '현재 방에서 이미 사용 중인 닉네임이에요. 다른 닉네임으로 입력해 주세요.',
   WRONG_PASSWORD: '비밀번호가 맞지 않아요. 다시 확인해 주세요.',
-  ROOM_FULL: '방이 가득 차 지금은 입장할 수 없어요.',
   ROOM_NOT_STARTED: '아직 방이 열리지 않았어요. 시작 시각 이후에 다시 입장해 주세요.',
 };
 
@@ -109,16 +110,20 @@ export function JoinRoomPage() {
   // 방 유효기간 시작 전이면(startAt 이 미래) 아직 입장할 수 없다. startAt=0 은 즉시(레거시).
   const startAt = summary?.startAt ?? 0;
   const notStarted = startAt > Date.now();
-  const canJoin = !!nickname.trim() && pinOk && !notStarted;
+  // 정원 초과 — 방 조회 결과로 미리 막고(헛걸음 방지), 서버가 ROOM_FULL 로 돌려보낸 경우도 같이 본다.
+  // 조회와 실제 입장 사이에 누가 먼저 들어갈 수 있으므로 최종 판정은 언제나 서버 쪽이다.
+  const roomFull =
+    joinError === 'ROOM_FULL' || (summary?.participantCount ?? 0) >= MAX_PARTICIPANTS;
+  const canJoin = !!nickname.trim() && pinOk && !notStarted && !roomFull;
 
-  // 어느 칸에 인라인 안내를 붙일지 — 닉네임 중복은 닉네임 칸, 비밀번호 오류는 비밀번호 칸, 정원 초과는 상단 배너.
+  // 어느 칸에 인라인 안내를 붙일지 — 닉네임 중복은 닉네임 칸, 비밀번호 오류는 비밀번호 칸.
+  // (정원 초과는 폼에서 고칠 수 있는 게 아니라 모달로 알리고 메인으로 보낸다.)
   const nickError = joinError === 'NICKNAME_TAKEN';
   const pwError = joinError === 'WRONG_PASSWORD';
-  const bannerError = joinError === 'ROOM_FULL' ? JOIN_ERROR_MESSAGE.ROOM_FULL : null;
 
   const join = () => {
     const nick = nickname.trim();
-    if (!nick || !pinOk || notStarted) return;
+    if (!nick || !pinOk || notStarted || roomFull) return;
     setJoinError(null); // 다시 시도하는 순간 이전 안내는 지운다.
     // 이전 방의 잔여 상태를 비우고 닉네임·(비밀방이면)비밀번호·role만 저장하고 이동. 실제 소켓 연결·
     // room:join emit 은 GameRoom 의 useRoomConnection(role:'participant')이 connect 시 자동 처리한다.
@@ -131,6 +136,7 @@ export function JoinRoomPage() {
   };
 
   return (
+    <>
     <Screen
       footer={
         <Button block onClick={join} disabled={!canJoin}>
@@ -139,10 +145,6 @@ export function JoinRoomPage() {
       }
     >
       <h1 className="title" style={{ fontSize: 24 }}>참여하기</h1>
-
-      {bannerError && (
-        <p className="join-error-banner" role="alert">{bannerError}</p>
-      )}
 
       {notStarted && (
         <p className="join-error-banner" role="status">
@@ -209,5 +211,8 @@ export function JoinRoomPage() {
         설치·로그인 없이 바로 참여해요
       </p>
     </Screen>
+      {/* 정원이 찼으면 폼 위에 안내를 덮고, 확인을 누르면 메인으로 보낸다. */}
+      {roomFull && <RoomFullModal onConfirm={() => navigate(homePath())} />}
+    </>
   );
 }
