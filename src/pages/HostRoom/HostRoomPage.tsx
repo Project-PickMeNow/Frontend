@@ -20,7 +20,7 @@ import { LadderResult } from '../../features/game/components/results/LadderResul
 import { ResultModal } from '../../features/game/components/results/ResultModal';
 import { Loading, Button } from '../../shared/ui';
 import { homePath } from '../../shared/lib/embed';
-import { buildJoinUrl } from '../../shared/lib/joinUrl';
+import { useJoinUrl } from '../../shared/lib/joinUrl';
 
 type Phase = 'select' | 'qr' | 'play';
 
@@ -46,6 +46,8 @@ export function HostRoomPage() {
   const presetGameType =
     (location.state as { gameType?: GameType } | null)?.gameType ?? null;
   const socketRef = useRoomConnection(roomId, 'host');
+  // 참가 링크 — 토스앱 안에서는 미니앱으로 바로 들어오는 토스 공유 링크, 그 밖에선 공개 웹 주소.
+  const joinUrl = useJoinUrl(roomId);
 
   const status = useRoomStore((s) => s.status);
   const setStatus = useRoomStore((s) => s.setStatus);
@@ -359,7 +361,7 @@ export function HostRoomPage() {
       <GameLobby
         roomId={roomId}
         title={title}
-        joinUrl={buildJoinUrl(roomId)}
+        joinUrl={joinUrl}
         participants={participants}
         readyPlayers={readyPlayers}
         isHost
