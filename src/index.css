@@ -2130,7 +2130,7 @@ input {
   box-shadow: none;
   font-weight: 400;
 }
-/* 참가자 마스코트 이미지 — 원형 아바타를 꽉 채운다(흰 배경 마스코트라 아바타 배경은 밝게 둔다). */
+/* 참가자 마스코트 이미지 — 배경을 투명하게 딴 PNG 라, 아래 아바타 배경색이 그대로 비친다. */
 .lobby-slot.is-in .lobby-ava {
   background: var(--field);
   overflow: hidden;
