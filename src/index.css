@@ -144,8 +144,7 @@ input {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: var(--sp-6) var(--inset) var(--sp-4);
-  padding-top: max(var(--sp-6), env(safe-area-inset-top));
+  padding: var(--sp-3) var(--inset) var(--sp-4);
   overflow-y: auto;
 }
 .screen-footer {
@@ -166,10 +165,12 @@ input {
   gap: var(--sp-3);
 }
 .brand {
-  font-size: 30px;
+  font-size: 24px;
   font-weight: 800;
+  line-height: 1.15;
   color: var(--ink);
   letter-spacing: -0.4px;
+  margin: 0;
 }
 .title {
   font-size: 26px;
@@ -548,13 +549,25 @@ input {
    홈 — 결정 스피너 히어로(와이어프레임 '① 홈 · 개선안' / Figma 296:20)
    ------------------------------------------------------------------------- */
 .home-headline {
-  margin-top: var(--sp-8);
+  margin-top: var(--sp-2);
+}
+/* 홈에서만 제목을 한 단계 줄인다 — 에러 화면·임베드의 .title 은 그대로 둔다. */
+.home-headline .title {
+  font-size: 21px;
+  line-height: 1.2;
+}
+.home-headline .subtitle {
+  margin-top: var(--sp-1);
+  font-size: 14px;
 }
 .home-hero {
+  /* 높이를 변수로 둔다 — 세로가 짧은 기기에서 아래 미디어쿼리가 이 값만 줄이면
+     떠 있는 아이콘(bottom 기준 배치)까지 같이 따라온다. */
+  --hero-h: 200px;
   position: relative;
-  height: 300px;
+  height: var(--hero-h);
   flex-shrink: 0;
-  margin-top: var(--sp-6);
+  margin-top: var(--sp-3);
   border-radius: var(--r-card);
   background: var(--accent-soft);
   overflow: hidden;
@@ -566,8 +579,8 @@ input {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 210px;
-  height: 210px;
+  width: 165px;
+  height: 165px;
   transform: translate(-50%, -58%);
   border-radius: var(--r-pill);
   background: radial-gradient(
@@ -589,7 +602,7 @@ input {
 .home-spinner {
   position: relative;
   z-index: 1;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
   filter: drop-shadow(0 10px 20px rgba(16, 18, 23, 0.14));
 }
 .home-accent {
@@ -599,22 +612,22 @@ input {
   animation: home-float 3.2s ease-in-out infinite;
 }
 .home-accent.acc-tl {
-  top: 30px;
-  left: 22px;
+  top: 20px;
+  left: 20px;
 }
 .home-accent.acc-tr {
-  top: 42px;
-  right: 20px;
+  top: 30px;
+  right: 18px;
   animation-delay: 0.8s;
 }
 .home-accent.acc-bl {
-  top: 186px;
-  left: 30px;
+  bottom: 60px;
+  left: 26px;
   animation-delay: 1.6s;
 }
 .home-accent.acc-br {
-  top: 196px;
-  right: 24px;
+  bottom: 52px;
+  right: 22px;
   animation-delay: 2.4s;
 }
 @keyframes home-float {
@@ -630,7 +643,7 @@ input {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 30px;
+  bottom: 20px;
   text-align: center;
   color: var(--accent);
   font-size: 14px;
@@ -638,11 +651,11 @@ input {
   letter-spacing: -0.2px;
 }
 .home-hint {
-  margin-top: var(--sp-5);
+  margin-top: var(--sp-3);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--sp-3);
+  gap: var(--sp-2);
 }
 .home-hint-cap {
   margin: 0;
@@ -688,6 +701,27 @@ input {
 .home-join {
   display: flex;
   gap: var(--sp-3);
+}
+/* 세로가 짧은 기기(아이폰 SE 급) — 히어로만 더 줄여서 CTA 까지 한 화면에 담는다. */
+@media (max-height: 720px) {
+  .home-hero {
+    --hero-h: 168px;
+  }
+  .home-spinner {
+    width: 108px;
+    height: 108px;
+    margin-bottom: 24px;
+  }
+  .home-hero-glow {
+    width: 130px;
+    height: 130px;
+  }
+  .home-accent.acc-bl {
+    bottom: 50px;
+  }
+  .home-accent.acc-br {
+    bottom: 44px;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .home-accent {
