@@ -2601,6 +2601,24 @@ input {
    광고 자체의 모양은 SDK 표준 컴포넌트가 그린다 — 여기선 '자리'만 잡는다.
    광고 내부 요소(색·글꼴·문구)를 CSS 로 덮어쓰면 정책 위반이니 건드리지 않는다.
    ------------------------------------------------------------------------- */
+/* 로비 하단 액션 — [QR 보기 | 게임 시작] 한 줄 + 그 아래 '방 삭제하기'.
+   삭제는 되돌릴 수 없는 동작이라 주 버튼 아래, 링크 형태로 떨어뜨려 둔다. */
+.lobby-actions {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.lobby-actions-row {
+  display: grid;
+  /* 'QR 보기'는 짧고 보조적이라 좁게, '게임 시작'은 주 동작이라 넓게. */
+  grid-template-columns: 1fr 1.6fr;
+  gap: var(--sp-3);
+}
+.lobby-actions .link-danger {
+  align-self: center;
+}
+
 .banner-ad {
   width: 100%;
   /* 아래 32px 는 줄이면 안 된다 — 정책상 광고가 버튼 등 조작 요소와 인접하면
