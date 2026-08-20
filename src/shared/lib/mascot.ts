@@ -5,15 +5,15 @@
  * 닉네임 기반 안정 해시로 마스코트를 배정하므로, 같은 닉네임은 재렌더·재접속에도 항상 같은
  * 마스코트를 받는다(무작위처럼 흩어지되 고정적). Vite 가 import 를 최종 에셋 URL 로 바꿔준다.
  */
-import mascot1 from '../../assets/mascots/mascot-1.jpg';
-import mascot2 from '../../assets/mascots/mascot-2.jpg';
-import mascot3 from '../../assets/mascots/mascot-3.jpg';
-import mascot4 from '../../assets/mascots/mascot-4.jpg';
-import mascot5 from '../../assets/mascots/mascot-5.jpg';
-import mascot6 from '../../assets/mascots/mascot-6.jpg';
-import mascot7 from '../../assets/mascots/mascot-7.jpg';
-import mascot8 from '../../assets/mascots/mascot-8.jpg';
-import mascot9 from '../../assets/mascots/mascot-9.jpg';
+import mascot1 from '../../assets/mascots/mascot-1.png';
+import mascot2 from '../../assets/mascots/mascot-2.png';
+import mascot3 from '../../assets/mascots/mascot-3.png';
+import mascot4 from '../../assets/mascots/mascot-4.png';
+import mascot5 from '../../assets/mascots/mascot-5.png';
+import mascot6 from '../../assets/mascots/mascot-6.png';
+import mascot7 from '../../assets/mascots/mascot-7.png';
+import mascot8 from '../../assets/mascots/mascot-8.png';
+import mascot9 from '../../assets/mascots/mascot-9.png';
 
 const MASCOTS = [
   mascot1, mascot2, mascot3, mascot4, mascot5,
