@@ -482,6 +482,7 @@ export function HostRoomPage() {
         onRemoveItem={removeItem}
         onEditItem={editItem}
         onDraftChange={sendOrderDraft}
+        participants={participants}
         onLeave={() => setConfirmReturn(true)}
       />
     );
