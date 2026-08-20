@@ -2128,7 +2128,9 @@ input {
   align-items: center;
   gap: 10px;
   min-height: 58px;
-  padding: 8px 12px;
+  /* 오른쪽은 강퇴 ✕ 자리(모서리 안쪽)를 비워 둔다 — 배지가 이름과 같은 줄에 있어도
+     ✕ 와 가로로 겹치지 않는다. */
+  padding: 8px 26px 8px 12px;
   border-radius: var(--r-field);
   border: 1px solid var(--border);
   background: var(--surface);
@@ -2211,22 +2213,26 @@ input {
   color: #fff;
 }
 /* 호스트 전용 참가자 강퇴(내보내기) 버튼 */
+/* 슬롯 안쪽 오른쪽 위 모서리. 배지(READY/WAITING/HOST)도 오른쪽에 있는데,
+   슬롯의 오른쪽 패딩(26px)이 배지를 그만큼 왼쪽에서 멈추게 해 서로 겹치지 않는다. */
 .lobby-kick {
   position: absolute;
-  top: 3px;
-  right: 3px;
-  z-index: 1;
+  top: 4px;
+  right: 4px;
+  z-index: 2;
   flex: none;
-  width: 24px;
-  height: 24px;
+  width: 17px;
+  height: 17px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: none;
+  border: 1px solid var(--border);
   border-radius: 999px;
-  background: transparent;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
   color: var(--muted);
-  font-size: 13px;
+  font-size: 10px;
+  line-height: 1;
   cursor: pointer;
   transition:
     background 0.12s ease,
@@ -2234,6 +2240,7 @@ input {
 }
 .lobby-kick:hover {
   background: rgba(229, 72, 77, 0.12);
+  border-color: var(--danger);
   color: var(--danger);
 }
 /* 마우스가 있는 환경에서만 숨겼다가 호버 때 보여준다.
