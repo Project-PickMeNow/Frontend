@@ -13,30 +13,6 @@ const GAMES: { type: GameType; label: string }[] = [
 ];
 
 const PIN_MAX = 6;
-const MAX_DAYS = 7; // 방 유효기간 상한(시작일 포함 최대 7일)
-
-/** Date → 로컬 yyyy-mm-dd (date input 값). */
-function toYmd(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
-/** yyyy-mm-dd 에 일수를 더한 yyyy-mm-dd. */
-function addYmd(ymd: string, days: number): string {
-  const [y, m, d] = ymd.split('-').map(Number);
-  return toYmd(new Date(y, m - 1, d + days));
-}
-/** 시작 yyyy-mm-dd → 그날 00:00 로컬 ISO. */
-function startIso(ymd: string): string {
-  const [y, m, d] = ymd.split('-').map(Number);
-  return new Date(y, m - 1, d, 0, 0, 0, 0).toISOString();
-}
-/** 종료 yyyy-mm-dd → 그날 23:59:59 로컬 ISO(그날 하루 종일 유효). */
-function endIso(ymd: string): string {
-  const [y, m, d] = ymd.split('-').map(Number);
-  return new Date(y, m - 1, d, 23, 59, 59, 999).toISOString();
-}
 
 /**
  * 방 만들기 모달 — '방 만들기'를 누르면 게임 선택 페이지로 넘어가는 대신 여기서
@@ -60,18 +36,9 @@ export function CreateRoomModal({
   const [title, setTitle] = useState('');
   const [secret, setSecret] = useState(false);
   const [pin, setPin] = useState('');
-  // 방 유효기간 — 기본: 오늘부터 3일(오늘+2). 시작 전엔 참가자 입장이 막히고, 종료 후 방이 사라진다.
-  const today = toYmd(new Date());
-  const [startDate, setStartDate] = useState(today);
-  const [endDate, setEndDate] = useState(addYmd(today, 2));
 
   const pinValid = pin.length >= 1 && pin.length <= PIN_MAX;
-  // 종료일은 시작일 이상, 시작일부터 최대 7일(오늘+6)까지.
-  const maxEnd = addYmd(startDate, MAX_DAYS - 1);
-  const datesValid =
-    startDate >= today && endDate >= startDate && endDate <= maxEnd;
-  const canCreate =
-    !!gameType && (!secret || pinValid) && datesValid && !isPending;
+  const canCreate = !!gameType && (!secret || pinValid) && !isPending;
 
   // isPending prop 은 다음 렌더에야 반영돼, 빠른 더블클릭/더블엔터가 onCreate 를 두 번 쏠 수 있다.
   // 동기 ref 가드로 한 번만 보낸다(요청이 끝나 isPending 이 false 로 돌아오면 다시 허용 — 실패 후 재시도).
@@ -79,13 +46,6 @@ export function CreateRoomModal({
   useEffect(() => {
     if (!isPending) submittingRef.current = false;
   }, [isPending]);
-
-  // 시작일을 바꾸면 종료일을 유효 범위(시작일 ~ 시작일+6일)로 다시 맞춘다.
-  const changeStart = (next: string) => {
-    setStartDate(next);
-    const nextMax = addYmd(next, MAX_DAYS - 1);
-    setEndDate((cur) => (cur < next ? next : cur > nextMax ? nextMax : cur));
-  };
 
   const submit = () => {
     if (!canCreate || !gameType || submittingRef.current) return;
@@ -95,8 +55,6 @@ export function CreateRoomModal({
       title: title.trim() || undefined,
       isSecret: secret,
       password: secret ? pin : undefined,
-      startAt: startIso(startDate),
-      endAt: endIso(endDate),
     });
   };
 
@@ -146,38 +104,7 @@ export function CreateRoomModal({
           maxLength={50}
         />
 
-        {/* 3) 방 유효기간 — 시작일부터 종료일까지 방이 살아있고, 종료 후 자동으로 사라진다(최대 7일). */}
-        <p className="section-label crm-label">방 유효기간 <span className="muted">(최대 {MAX_DAYS}일)</span></p>
-        <div className="grid-2">
-          <label className="crm-date">
-            <span className="muted crm-date-cap">시작일</span>
-            <input
-              type="date"
-              className="input"
-              value={startDate}
-              min={today}
-              onChange={(e) => changeStart(e.target.value)}
-            />
-          </label>
-          <label className="crm-date">
-            <span className="muted crm-date-cap">종료일</span>
-            <input
-              type="date"
-              className="input"
-              value={endDate}
-              min={startDate}
-              max={maxEnd}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
-          </label>
-        </div>
-        <p className="muted crm-hint">
-          {datesValid
-            ? '시작일부터 참가자가 입장할 수 있고, 종료일이 지나면 방이 자동으로 사라져요.'
-            : `유효기간을 확인해 주세요 (시작일 이후, 최대 ${MAX_DAYS}일).`}
-        </p>
-
-        {/* 4) 자유방 / 비밀방 */}
+        {/* 3) 자유방 / 비밀방 */}
         <p className="section-label crm-label">입장 방식</p>
         <div className="crm-seg" role="tablist" aria-label="입장 방식">
           <button
