@@ -70,7 +70,7 @@ export function CreateRoomModal({
         <h2 className="title center" style={{ marginTop: 0, fontSize: 22 }}>
           방 만들기
         </h2>
-        <p className="subtitle center" style={{ marginTop: -2 }}>
+        <p className="subtitle center" style={{ marginTop: 6 }}>
           게임과 방 설정을 고르고 시작해요
         </p>
 
